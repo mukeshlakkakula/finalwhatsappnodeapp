@@ -2,7 +2,7 @@ import pkg from "whatsapp-web.js";
 const { Client, LocalAuth, MessageMedia } = pkg;
 
 import path from "path";
-
+import fs from "fs";
 import { fileURLToPath } from "url";
 
 const __filename = fileURLToPath(import.meta.url);
@@ -21,7 +21,7 @@ export async function initializeWhatsAppClient() {
   client = new Client({
     puppeteer: { headless: true },
     authStrategy: new LocalAuth({
-      clientId: "YOUR_CLIENT_ID_1",
+      clientId: "YOUR_CLIENT_ID_2",
       dataPath: path.join(__dirname, "sessions"),
     }),
   });
@@ -157,12 +157,15 @@ export async function sendMediaMessage(
 
   try {
     const formattedNumber = formatPhoneNumber(phoneNumber);
-
+    if (!fs.existsSync(filePath)) {
+      console.error("File does not exist:", filePath);
+    }
     if (filePath) {
       // Load the media file
       const media = MessageMedia.fromFilePath(filePath);
       console.log("Media MIME Type:", media.mimetype);
-
+      const stats = fs.statSync(filePath);
+      console.log("File Size:", stats.size);
       // WhatsApp Web's file size limit is typically 16MB
       const maxSize = 16 * 1024 * 1024; // 16 MB
       if (stats.size > maxSize) {
